@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "nano33",
+			"path": "nano33"
+		}
+	],
+	"settings": {}
+}
