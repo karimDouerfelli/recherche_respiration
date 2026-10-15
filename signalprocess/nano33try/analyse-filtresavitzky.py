@@ -38,7 +38,7 @@ std_locale = pd.Series(sig_resp_brut).rolling(window=fenetre_echantillons, min_p
 energie_lisse = std_locale.rolling(window=int(fs), min_periods=1, center=True).mean().values
 
 # Seuil d'activation du Noise Gate (à ajuster si l'apnée ne s'aplatit pas)
-seuil_activation = 1.5 
+seuil_activation = 1.3
 masque_respiration = energie_lisse > seuil_activation
 masque_adouci = pd.Series(masque_respiration.astype(float)).rolling(window=int(fs*1.5), min_periods=1, center=True).mean().values
 
@@ -59,24 +59,28 @@ else:
     etat_resp = "⚠️ APNÉE DÉTECTÉE"
     couleur_resp = "red"
 
-# B. Cardiaque (Détection par Autocorrélation)
-# Si on est en apnée, on ignore souvent le rythme cardiaque car le signal est trop instable
+# B. Cardiaque (Détection par Autocorrélation Protégée)
+
 if rythme_resp == 0.0:
     rythme_card = 0.0
     etat_card = "⚠️ SIGNAL PERDU"
     couleur_card = "orange"
 else:
-    # Autocorrélation complète du signal cardiaque
-    correlation = np.correlate(sig_cardiaque, sig_cardiaque, mode='full')
-    correlation = correlation[len(correlation)//2:] # On ne garde que la moitié positive
+    # 1. Écrêtage (Clipping) des harmoniques respiratoires
+    # On calcule l'énergie normale du cœur dans les zones calmes (environ 1.5 dB sur ton graphe)
+    limite_card = np.std(sig_cardiaque) * 0.8
+    # On coupe tout ce qui dépasse cette limite pour détruire les ondes de choc de 6 dB
+    sig_card_propre = np.clip(sig_cardiaque, -limite_card, limite_card)
 
-    # On cherche la périodicité dans une fenêtre physiologiquement valide (40 à 150 BPM)
-    min_lag = int(fs * 0.4)  # Équivalent à 150 BPM
-    max_lag = int(fs * 1.5)  # Équivalent à 40 BPM
+    # 2. Autocorrélation sur le signal raboté
+    correlation = np.correlate(sig_card_propre, sig_card_propre, mode='full')
+    correlation = correlation[len(correlation)//2:] 
+
+    min_lag = int(fs * 0.4)  # 150 BPM
+    max_lag = int(fs * 1.5)  # 40 BPM
     zone_recherche = correlation[min_lag:max_lag]
 
     if len(zone_recherche) > 0 and np.max(zone_recherche) > 0:
-        # Le pic d'autocorrélation donne la distance temporelle du rythme dominant
         lag_max = np.argmax(zone_recherche) + min_lag
         rythme_card = 60.0 / (lag_max / fs)
         etat_card = f"{rythme_card:.1f} BPM (AutoCorr)"

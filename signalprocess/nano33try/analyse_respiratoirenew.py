@@ -37,7 +37,7 @@ energie_lisse = std_locale.rolling(window=int(fs), min_periods=1, center=True).m
 # CRITIQUE : Le seuil doit être supérieur à l'énergie du bruit d'apnée.
 # Si la courbe ne devient pas plate pendant l'apnée, monte cette valeur (ex: 1.8, 2.0).
 # Si elle coupe tes vraies respirations, baisse-la légèrement (ex: 1.2).
-seuil_activation = 1.5 
+seuil_activation = 1.5
 masque_respiration = energie_lisse > seuil_activation
 
 # Lissage du masque étendu à 1.5 seconde pour un "fondu" très doux (fade in/out)
