@@ -59,7 +59,7 @@ else:
     couleur_resp = "red"
 
 # Cardiaque (Détection continue avec prominence ajustée pour le bruit de fond)
-peaks_card, _ = find_peaks(sig_cardiaque, distance=fs*0.33, prominence=0.2)
+peaks_card, _ = find_peaks(sig_cardiaque, distance=fs*0.4, prominence=1.5)
 if len(peaks_card) > 1:
     rythme_card = 60 / np.mean(np.diff(t[peaks_card]))
     etat_card = f"{rythme_card:.1f} BPM"
