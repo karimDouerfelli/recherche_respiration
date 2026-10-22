@@ -139,4 +139,4 @@ cbar.ax.yaxis.set_tick_params(color="white")
 ax2.set_title(f"2. Cartographie 3x3 (Volume Total Mesuré : {volume_total:.2f} L)", fontsize=12)
 
 plt.tight_layout()
-plt.show()semaine
+plt.show()

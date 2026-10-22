@@ -5,7 +5,7 @@ from bleak import BleakClient, BleakScanner
 import pandas as pd
 
 donnees_rssi = []
-duree_ecoute = 30.0
+duree_ecoute = 60.0
 nom_balise = "Nano_Respiration"
 # UUID standard complet correspondant à "2A37" défini dans l'Arduino
 UUID_CHARACTERISTIC = "00002a37-0000-1000-8000-00805f9b34fb"
